@@ -106,12 +106,12 @@ def keyPress(palabra):
      press_key('LEFT')
   elif palabra =='Azul':
     press_key('RIGHT')
-    if palabra =='Blanco':
+  elif palabra =='Blanco':
      press_key('UP')
-     press_key('E')
+     press_key('LEFT')
   elif palabra =='Amarillo':
      press_key('UP')
-     press_key('Q')
+     press_key('RIGHT')
      
 
 class Mygame(arcade.Window):
