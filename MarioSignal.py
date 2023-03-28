@@ -193,8 +193,41 @@ class Mygame(arcade.Window):
 
   def on_update(self, delta_time):
      self.physics_engine.update()
-  
-  
+     changed = False
+
+        # Scroll left
+     left_boundary = self.view_left + Left_viewport_margin
+     if self.player_sprite.left < left_boundary:
+          self.view_left -= left_boundary - self.player_sprite.left
+          changed = True
+
+        # Scroll right
+     right_boundary = self.view_left + Screen_width - Right_viewport_margin
+     if self.player_sprite.right > right_boundary:
+            self.view_left += self.player_sprite.right - right_boundary
+            changed = True
+
+        # Scroll up
+     top_boundary = self.view_bottom + Screen_height - Top_viewport_margin
+     if self.player_sprite.top > top_boundary:
+          self.view_bottom += self.player_sprite.top - top_boundary
+          changed = True
+
+        # Scroll down
+     bottom_boundary = self.view_bottom + Bottom_viewport_margin
+     if self.player_sprite.bottom < bottom_boundary:
+          self.view_bottom -= bottom_boundary - self.player_sprite.bottom
+          changed = True
+
+     if changed:
+         # Only scroll to integers. Otherwise we end up with pixels that
+         # don't line up on the screen
+         self.view_bottom = int(self.view_bottom)
+         self.view_left = int(self.view_left)
+
+         # Do the scrolling
+         arcade.set_viewport(self.view_left, Screen_width + self.view_left, self.view_bottom,Screen_height + self.view_bottom)
+
   
 
 def main():
