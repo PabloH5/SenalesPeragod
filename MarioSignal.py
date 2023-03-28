@@ -120,6 +120,7 @@ class Mygame(arcade.Window):
     cosa = Process(target=WordRecognizer)
     cosa.start()
     arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
+    self.Instruccion = arcade.load_texture("Botones.png")
     
     #Listas que contienen los sprites.
     self.coin_list = None
@@ -138,6 +139,7 @@ class Mygame(arcade.Window):
     self.coin_list = arcade.SpriteList()
     self.player_list = arcade.SpriteList()
     self.wall_list = arcade.SpriteList()
+    #self.Instruccion_list = arcade.SpriteList()
     
 
     #Crea el jugador.
@@ -173,6 +175,10 @@ class Mygame(arcade.Window):
     arcade.start_render() 
     self.wall_list.draw()
     self.player_list.draw()
+    arcade.draw_text("Por favor habla para moverte", -120, Screen_height - 80, arcade.color.WHITE, 20,font_name="04b")
+    arcade.draw_texture_rectangle(600,420,163,103, self.Instruccion)
+    #arcade.sprite("Botones.png", 40)
+
 
   def on_key_press(self, key, modifiers):
      
