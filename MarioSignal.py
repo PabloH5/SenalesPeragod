@@ -79,7 +79,6 @@ def predictionVector (audio):
 
 def WordRecognizer():
    while True:
-    #SP_recognizer()
     print("Porfavor habla")
     with mic as source:
       audio = recognizer.listen(source, phrase_time_limit=3)
