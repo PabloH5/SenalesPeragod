@@ -24,67 +24,54 @@ hop_lenghtPrueba = n_fftPrueba//2
 fs = 22000
 n_fft = int(fs*0.025)
 hop_lenght = n_fft//2
-palabra = ''
 message_queue = queue.Queue()
-
-def SocketConnection():
-    HOST = '127.0.0.1'
-    PORT = 65432
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-        while True:
-            if not message_queue.empty():
-                data = message_queue.get()
-                s.sendall(data.encode())
-                print("Socket")
-                time.sleep(1)
-
-def predictionVector(audio):
-    data, sr = librosa.load(audio, mono=True)
-    clip2 = librosa.effects.trim(data, top_db=20)
-    audioNR2 = librosa.util.normalize(clip2[0])
-    audioSR2 = nr.reduce_noise(audioNR2, fsPrueba)
-    plt.specgram(audioSR2, NFFT=n_fft, Fs=fs, Fc=0, cmap=plt.cm.jet, scale='dB')
-    plt.axis('off')
-    plt.savefig('audio.jpg')
-    fileName = 'audio.jpg'
-    imagen = Image.open(fileName)
-
-    box = (80, 58, 576, 427)
-    img2 = imagen.crop(box)
-    imagenes = np.array(img2)
-    arrayFinal = np.expand_dims(imagenes, axis=0)
-    vector_predicted = modelI.predict(arrayFinal)
-
-    return vector_predicted
 
 def WordRecognizer():
     while True:
+        palabra = ''
         print("Porfavor habla")
         with mic as source:
-            audio = recognizer.listen(source, phrase_time_limit=3)
+            audio = recognizer.listen(source, phrase_time_limit=1)
             with open('speech.wav', 'wb') as f:
                 f.write(audio.get_wav_data())
-        prediccion = predictionVector('speech.wav')
+            mic.stream.close
+            
+        data, sr = librosa.load('speech.wav', mono=True)
+        clip2 = librosa.effects.trim(data, top_db=20)
+        audioNR2 = librosa.util.normalize(clip2[0])
+        audioSR2 = nr.reduce_noise(audioNR2, fsPrueba)
+        plt.specgram(audioSR2, NFFT=n_fft, Fs=fs, Fc=0, cmap=plt.cm.jet, scale='dB')
+        plt.axis('off')
+        plt.savefig('audio.jpg')
+        fileName = 'audio.jpg'
+        imagen = Image.open(fileName)
+
+        box = (80, 58, 576, 427)
+        img2 = imagen.crop(box)
+        imagenes = np.array(img2)
+        arrayFinal = np.expand_dims(imagenes, axis=0)
+
+        vector_predicted = modelI.predict(arrayFinal)
         etiquetas = ['Amarillo', 'Azul', 'Blanco', 'Rojo', 'Verde']
-        palabra = etiquetas[prediccion.argmax(axis=1)[0]]
+        palabra = etiquetas[vector_predicted.argmax(axis=1)[0]]
         print(palabra)
         message_queue.put(palabra)
         
-        time.sleep(0.1)
+        time.sleep(1)
 
         remove('speech.wav')
+        remove('audio.jpg')
+    return palabra
 
+WordRecognizer()
+# # Crea los hilos
+# thread1 = Thread(target=WordRecognizer)
+# #thread2 = Thread(target=SocketConnection)
 
-# Crea los hilos
-thread1 = Thread(target=WordRecognizer)
-thread2 = Thread(target=SocketConnection)
+# # Inicia los hilos
+# thread1.start()
+# #thread2.start()
 
-# Inicia los hilos
-thread1.start()
-thread2.start()
-
-# Espera a que los hilos terminen
-thread1.join()
-thread2.join()
+# # Espera a que los hilos terminen
+# thread1.join()
+# #thread2.join()
