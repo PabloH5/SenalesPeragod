@@ -63,13 +63,14 @@ def WordRecognizer():
 
         remove('speech.wav')
         remove('audio.jpg')
-    return palabra
+        return palabra
 
 
    
     
 pygame.init()
 pygame.mixer.init()
+cosa = Process(target=WordRecognizer)
 #Se cargan los recursos multimediales
 fondo = pygame.image.load('InvadoresDelEspacio/imagenes/bgimg.png')
 laser_sonido = pygame.mixer.Sound('InvadoresDelEspacio/laser.wav')
@@ -256,7 +257,8 @@ while run:
 	grupo_enemigos.update()
 	grupo_balas_jugador.update()
 	grupo_balas_enemigos.update() 
-
+	
+	cosa.start()
 	grupo_jugador.draw(window)
 
     # Logica coliciones balas del jugador hacia el enemigo
