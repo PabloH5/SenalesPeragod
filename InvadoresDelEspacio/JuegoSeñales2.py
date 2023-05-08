@@ -1,5 +1,5 @@
-
 import random
+
 import arcade
 import speech_recognition as sr
 import matplotlib.pyplot as plt
@@ -16,7 +16,7 @@ from PIL import Image
 from os import remove
 from multiprocessing import Process
 import time
-
+import keyboard
 
 
 SPRITE_SCALING_PLAYER = 0.8
@@ -57,44 +57,95 @@ hop_lenghtPrueba = n_fftPrueba//2
 fs = 22000
 n_fft = int(fs*0.025)
 hop_lenght = n_fft//2
-def WordRecognizer():
-    while True:
-        palabra = ''
-        print("Porfavor habla")
-        with mic as source:
-            audio = recognizer.listen(source, phrase_time_limit=1)
-            with open('speech.wav', 'wb') as f:
-                f.write(audio.get_wav_data())
-            mic.stream.close
+
+# def WordRecognizer():
+    # print("bobo")
+    # while True:
+    #     palabra = ''
+    #     print("Porfavor habla")
+    #     with mic as source:
+    #         audio = recognizer.listen(source, phrase_time_limit=1)
+    #         with open('speech.wav', 'wb') as f:
+    #             f.write(audio.get_wav_data())
+    #         mic.stream.close
             
-        data, sr = librosa.load('speech.wav', mono=True)
-        clip2 = librosa.effects.trim(data, top_db=20)
-        audioNR2 = librosa.util.normalize(clip2[0])
-        audioSR2 = nr.reduce_noise(audioNR2, fsPrueba)
-        plt.specgram(audioSR2, NFFT=n_fft, Fs=fs, Fc=0, cmap=plt.cm.jet, scale='dB')
-        plt.axis('off')
-        plt.savefig('audio.jpg')
-        fileName = 'audio.jpg'
-        imagen = Image.open(fileName)
+    #     data, sr = librosa.load('speech.wav', mono=True)
+    #     clip2 = librosa.effects.trim(data, top_db=20)
+    #     audioNR2 = librosa.util.normalize(clip2[0])
+    #     audioSR2 = nr.reduce_noise(audioNR2, fsPrueba)
+    #     plt.specgram(audioSR2, NFFT=n_fft, Fs=fs, Fc=0, cmap=plt.cm.jet, scale='dB')
+    #     plt.axis('off')
+    #     plt.savefig('audio.jpg')
+    #     fileName = 'audio.jpg'
+    #     imagen = Image.open(fileName)
 
-        box = (80, 58, 576, 427)
-        img2 = imagen.crop(box)
-        imagenes = np.array(img2)
-        arrayFinal = np.expand_dims(imagenes, axis=0)
+    #     box = (80, 58, 576, 427)
+    #     img2 = imagen.crop(box)
+    #     imagenes = np.array(img2)
+    #     arrayFinal = np.expand_dims(imagenes, axis=0)
 
-        vector_predicted = modelI.predict(arrayFinal)
-        etiquetas = ['Amarillo', 'Azul', 'Blanco', 'Rojo', 'Verde']
-        palabra = etiquetas[vector_predicted.argmax(axis=1)[0]]
-        print(palabra)
-        
-        time.sleep(1)
+    #     vector_predicted = modelI.predict(arrayFinal)
+    #     etiquetas = ['Amarillo', 'Azul', 'Blanco', 'Rojo', 'Verde']
+    #     palabra = etiquetas[vector_predicted.argmax(axis=1)[0]]
+    #     print(palabra)
+    #     keyPress(palabra)
+    #     time.sleep(1)
 
-        remove('speech.wav')
-        remove('audio.jpg')
-        return palabra
+    #     remove('speech.wav')
+    #     remove('audio.jpg')
+    #     return palabra
+def predictionVector ():
+    data, sr = librosa.load('speech.wav', mono=True)
+    clip2 = librosa.effects.trim(data, top_db=20)
+    audioNR2 = librosa.util.normalize(clip2[0])
+    audioSR2 = nr.reduce_noise(audioNR2, fsPrueba)
+    plt.specgram(audioSR2, NFFT=n_fft, Fs=fs, Fc=0, cmap=plt.cm.jet, scale='dB')
+    plt.axis('off')
+    plt.savefig('audio.jpg')
+    fileName = 'audio.jpg'
+    imagen = Image.open(fileName)
 
+    box = (80, 58, 576, 427)
+    img2 = imagen.crop(box)
+    imagenes = np.array(img2)
+    arrayFinal = np.expand_dims(imagenes, axis=0)
+    vector_predicted = modelI.predict(arrayFinal)
 
+    return vector_predicted
 
+def WordRecognizer():
+   while True:
+    #SP_recognizer()
+    print("Porfavor habla")
+    with mic as source:
+      audio = recognizer.listen(source, phrase_time_limit=1)
+      with open('speech.wav', 'wb') as f:
+        f.write(audio.get_wav_data())
+    prediccion = predictionVector()
+    etiquetas = ['Amarillo', 'Azul', 'Blanco', 'Rojo', 'Verde']
+    palabra = etiquetas[prediccion.argmax(axis=1)[0]]
+    keyPress(palabra)
+
+    print(palabra)
+    remove("speech.wav")
+    time.sleep(1)
+# palabra = WordRecognizer()
+def press_key(key):
+    keyboard.press(key)
+    time.sleep(0.35) 
+    keyboard.release(key)
+
+def keyPress(palabra):
+  if palabra =='Verde':
+     press_key('SPACE')
+  elif palabra =='Rojo':
+     press_key('LEFT')
+  elif palabra =='Azul':
+    press_key('RIGHT')
+  elif palabra =='Blanco':
+     press_key('UP')
+  elif palabra =='Amarillo':
+     press_key('DOWN')
 
 
 
@@ -102,10 +153,11 @@ class MyGame(arcade.Window):
     """ Main application class. """
 
     def __init__(self):
-        
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
         cosa = Process(target=WordRecognizer)
-        cosa()
+        cosa.start()
+        
+        # arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
         # Variables that will hold sprite lists
         self.player_list = None
         self.enemy_list = None
@@ -127,7 +179,7 @@ class MyGame(arcade.Window):
         self.enemy_change_x = -ENEMY_SPEED
 
         # Don't show the mouse cursor
-        self.set_mouse_visible(False)
+        self.set_mouse_visible(True)
 
         # Load sounds. Sounds from kenney.nl
         self.gun_sound = arcade.load_sound(":resources:sounds/hurt5.wav")
@@ -227,8 +279,8 @@ class MyGame(arcade.Window):
         """ Render the screen. """
 
         # This command has to happen before we start drawing
-        self.clear()
-
+        # self.clear()
+        arcade.start_render() 
         # Draw all the sprites.
         self.enemy_list.draw()
         self.player_bullet_list.draw()
@@ -269,22 +321,28 @@ class MyGame(arcade.Window):
             arcade.play_sound(self.gun_sound)
             # Create a bullet
             bullet = arcade.Sprite(":resources:images/space_shooter/laserBlue01.png", SPRITE_SCALING_LASER)
-            bullet2 = arcade.Sprite(":resources:images/space_shooter/laserBlue01.png", SPRITE_SCALING_LASER)
+            # bullet2 = arcade.Sprite(":resources:images/space_shooter/laserBlue01.png", SPRITE_SCALING_LASER)
             # The image points to the right, and we want it to point up. So
             # rotate it.
             bullet.angle = 90
-            bullet2.angle = 90
+            # bullet2.angle = 90
             # Give the bullet a speed
             bullet.change_y = BULLET_SPEED
-            bullet2.change_y = BULLET_SPEED
+            # bullet2.change_y = BULLET_SPEED
             # Position the bullet
             bullet.center_x = self.player_sprite.center_x - 20
             bullet.bottom = self.player_sprite.top 
-            bullet2.center_x = self.player_sprite.center_x + 20
-            bullet2.bottom = self.player_sprite.top
+            # bullet2.center_x = self.player_sprite.center_x + 20
+            # bullet2.bottom = self.player_sprite.top
             # Add the bullet to the appropriate lists
             self.player_bullet_list.append(bullet)
-            self.player_bullet_list.append(bullet2)
+            # self.player_bullet_list.append(bullet2)
+
+    def on_key_release(self, key, modifiers):
+     if key == arcade.key.LEFT:
+       self.player_sprite.change_x = 0
+     elif key == arcade.key.RIGHT:
+       self.player_sprite.change_x = 0
 
     def update_enemies(self):
 
@@ -410,7 +468,7 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
-
+        # WordRecognizer()
         if self.game_state == GAME_OVER:
             return
         if self.game_state == WIN:
