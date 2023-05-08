@@ -57,7 +57,6 @@ def WordRecognizer():
         etiquetas = ['Amarillo', 'Azul', 'Blanco', 'Rojo', 'Verde']
         palabra = etiquetas[vector_predicted.argmax(axis=1)[0]]
         print(palabra)
-        # message_queue.put(palabra)
         
         time.sleep(1)
 
