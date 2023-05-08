@@ -27,15 +27,15 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Slime Invaders"
 
-BULLET_SPEED = 2
-ENEMY_SPEED = 1.5
-PLAYER_SPEED = 25
+BULLET_SPEED = 1.5
+BULLER_PLAYER_SPEED = 3
+ENEMY_SPEED = 0.5
+PLAYER_SPEED = 35
 
-MAX_PLAYER_BULLETS = 3
 
 # This margin controls how close the enemy gets to the left or right side
 # before reversing direction.
-ENEMY_VERTICAL_MARGIN = 15
+ENEMY_VERTICAL_MARGIN = 10
 RIGHT_ENEMY_BORDER = SCREEN_WIDTH - ENEMY_VERTICAL_MARGIN
 LEFT_ENEMY_BORDER = ENEMY_VERTICAL_MARGIN
 
@@ -101,8 +101,8 @@ def predictionVector ():
     audioSR2 = nr.reduce_noise(audioNR2, fsPrueba)
     plt.specgram(audioSR2, NFFT=n_fft, Fs=fs, Fc=0, cmap=plt.cm.jet, scale='dB')
     plt.axis('off')
-    plt.savefig('audio.jpg')
-    fileName = 'audio.jpg'
+    plt.savefig('saudio.jpg')
+    fileName = 'saudio.jpg'
     imagen = Image.open(fileName)
 
     box = (80, 58, 576, 427)
@@ -128,11 +128,12 @@ def WordRecognizer():
 
     print(palabra)
     remove("speech.wav")
+    remove("saudio.jpg")
     time.sleep(1)
 # palabra = WordRecognizer()
 def press_key(key):
     keyboard.press(key)
-    time.sleep(0.35) 
+    time.sleep(0.5) 
     keyboard.release(key)
 
 def keyPress(palabra):
@@ -198,10 +199,10 @@ class MyGame(arcade.Window):
         self.enemy_textures.append(texture)
 
         # Create rows and columns of enemies
-        x_count = 5
+        x_count = 4
         x_start = 380
         x_spacing = 80
-        y_count = 2
+        y_count = 1
         y_start = 420
         y_spacing = 60
         for x in range(x_start, x_spacing * x_count + x_start, x_spacing):
@@ -327,7 +328,7 @@ class MyGame(arcade.Window):
             bullet.angle = 90
             # bullet2.angle = 90
             # Give the bullet a speed
-            bullet.change_y = BULLET_SPEED
+            bullet.change_y = BULLER_PLAYER_SPEED
             # bullet2.change_y = BULLET_SPEED
             # Position the bullet
             bullet.center_x = self.player_sprite.center_x - 20
@@ -379,7 +380,7 @@ class MyGame(arcade.Window):
         for enemy in self.enemy_list:
             # Adjust the chance depending on the number of enemies. Fewer
             # enemies, more likely to fire.
-            chance = 1 + len(self.enemy_list) * 4
+            chance = 1 + len(self.enemy_list) * 30
 
             # Fire if we roll a zero, and no one else in this column has had
             # a chance to fire.
