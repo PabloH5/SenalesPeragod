@@ -58,42 +58,6 @@ fs = 22000
 n_fft = int(fs*0.025)
 hop_lenght = n_fft//2
 
-# def WordRecognizer():
-    # print("bobo")
-    # while True:
-    #     palabra = ''
-    #     print("Porfavor habla")
-    #     with mic as source:
-    #         audio = recognizer.listen(source, phrase_time_limit=1)
-    #         with open('speech.wav', 'wb') as f:
-    #             f.write(audio.get_wav_data())
-    #         mic.stream.close
-            
-    #     data, sr = librosa.load('speech.wav', mono=True)
-    #     clip2 = librosa.effects.trim(data, top_db=20)
-    #     audioNR2 = librosa.util.normalize(clip2[0])
-    #     audioSR2 = nr.reduce_noise(audioNR2, fsPrueba)
-    #     plt.specgram(audioSR2, NFFT=n_fft, Fs=fs, Fc=0, cmap=plt.cm.jet, scale='dB')
-    #     plt.axis('off')
-    #     plt.savefig('audio.jpg')
-    #     fileName = 'audio.jpg'
-    #     imagen = Image.open(fileName)
-
-    #     box = (80, 58, 576, 427)
-    #     img2 = imagen.crop(box)
-    #     imagenes = np.array(img2)
-    #     arrayFinal = np.expand_dims(imagenes, axis=0)
-
-    #     vector_predicted = modelI.predict(arrayFinal)
-    #     etiquetas = ['Amarillo', 'Azul', 'Blanco', 'Rojo', 'Verde']
-    #     palabra = etiquetas[vector_predicted.argmax(axis=1)[0]]
-    #     print(palabra)
-    #     keyPress(palabra)
-    #     time.sleep(1)
-
-    #     remove('speech.wav')
-    #     remove('audio.jpg')
-    #     return palabra
 def predictionVector ():
     data, sr = librosa.load('speech.wav', mono=True)
     clip2 = librosa.effects.trim(data, top_db=20)
@@ -157,7 +121,6 @@ class MyGame(arcade.Window):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
         cosa = Process(target=WordRecognizer)
         cosa.start()
-        
         # arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
         # Variables that will hold sprite lists
         self.player_list = None
@@ -186,8 +149,9 @@ class MyGame(arcade.Window):
         self.gun_sound = arcade.load_sound(":resources:sounds/hurt5.wav")
         self.hit_sound = arcade.load_sound(":resources:sounds/hit5.wav")
 
-        arcade.set_background_color(arcade.color.AMAZON)
-
+        # arcade.set_background_color(arcade.color.AMAZON)
+        
+        self.background = arcade.load_texture("InvadoresDelEspacio\imagenes\Espacio.jpg")
         # arcade.configure_logging()
 
     def setup_level_one(self):
@@ -282,6 +246,7 @@ class MyGame(arcade.Window):
         # This command has to happen before we start drawing
         # self.clear()
         arcade.start_render() 
+        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
         # Draw all the sprites.
         self.enemy_list.draw()
         self.player_bullet_list.draw()
